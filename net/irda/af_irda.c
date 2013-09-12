@@ -1401,6 +1401,8 @@ static int irda_recvmsg_dgram(struct kiocb *iocb, struct socket *sock,
 
 	IRDA_DEBUG(4, "%s()\n", __func__);
 
+	msg->msg_namelen = 0;
+
 	skb = skb_recv_datagram(sk, flags & ~MSG_DONTWAIT,
 				flags & MSG_DONTWAIT, &err);
 	if (!skb)
@@ -2599,6 +2601,7 @@ bed:
 				    NULL, NULL, NULL);
 
 		/* Check if the we got some results */
+<<<<<<< HEAD
 /* LGE_CHANGE
  * Releasing socket has to be done.
  * 2012-04-06, chaeuk.lee@lge.com
@@ -2612,6 +2615,12 @@ bed:
 		if (!self->cachedaddr)
 			return -EAGAIN;		/* Didn't find any devices */
 #endif /* CONFIG_LGE_IRDA */
+=======
+		if (!self->cachedaddr) {
+			err = -EAGAIN;		/* Didn't find any devices */
+			goto out;
+		}
+>>>>>>> 132920f... 3.4.0 - 3.4.61
 		daddr = self->cachedaddr;
 		/* Cleanup */
 		self->cachedaddr = 0;

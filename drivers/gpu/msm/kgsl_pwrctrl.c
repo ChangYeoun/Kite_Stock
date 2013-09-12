@@ -459,32 +459,22 @@ void kgsl_pwrctrl_clk(struct kgsl_device *device, int state,
 						clk_unprepare(pwr->grp_clks[i]);
 			}
 			kgsl_pwrctrl_busy_time(device, true);
-		} else if (requested_state == KGSL_STATE_SLEEP) {
-			/* High latency clock maintenance. */
-			if ((pwr->pwrlevels[0].gpu_freq > 0))
-				clk_set_rate(pwr->grp_clks[0],
-					pwr->pwrlevels[pwr->num_pwrlevels - 1].
-					gpu_freq);
-			for (i = KGSL_MAX_CLKS - 1; i > 0; i--)
-				if (pwr->grp_clks[i])
-					clk_unprepare(pwr->grp_clks[i]);
 		}
 	} else if (state == KGSL_PWRFLAGS_ON) {
 		if (!test_and_set_bit(KGSL_PWRFLAGS_CLK_ON,
 			&pwr->power_flags)) {
 			trace_kgsl_clk(device, state);
 			/* High latency clock maintenance. */
-			if (device->state != KGSL_STATE_NAP) {
+			if ((pwr->pwrlevels[0].gpu_freq > 0) &&
+				(device->state != KGSL_STATE_NAP)) {
 				for (i = KGSL_MAX_CLKS - 1; i > 0; i--)
 					if (pwr->grp_clks[i])
 						clk_prepare(pwr->grp_clks[i]);
-
-				if (pwr->pwrlevels[0].gpu_freq > 0)
-					clk_set_rate(pwr->grp_clks[0],
-						pwr->pwrlevels
-						[pwr->active_pwrlevel].
+				clk_set_rate(pwr->grp_clks[0],
+					pwr->pwrlevels[pwr->active_pwrlevel].
 						gpu_freq);
 			}
+
 			/* as last step, enable grp_clk
 			   this is to let GPU interrupt to come */
 			for (i = KGSL_MAX_CLKS - 1; i > 0; i--)
@@ -738,7 +728,7 @@ void kgsl_idle_check(struct work_struct *work)
 
 	mutex_lock(&device->mutex);
 	if (device->state & (KGSL_STATE_ACTIVE | KGSL_STATE_NAP)) {
-		kgsl_pwrscale_idle(device, 0);
+		kgsl_pwrscale_idle(device);
 
 		if (kgsl_pwrctrl_sleep(device) != 0) {
 			mod_timer(&device->idle_timer,
@@ -860,6 +850,7 @@ _sleep_accounting(struct kgsl_device *device)
 static int
 _sleep(struct kgsl_device *device)
 {
+	struct kgsl_pwrctrl *pwr = &device->pwrctrl;
 	switch (device->state) {
 	case KGSL_STATE_ACTIVE:
 		if (!device->ftbl->isidle(device)) {
@@ -870,6 +861,10 @@ _sleep(struct kgsl_device *device)
 	case KGSL_STATE_NAP:
 		kgsl_pwrctrl_irq(device, KGSL_PWRFLAGS_OFF);
 		kgsl_pwrctrl_axi(device, KGSL_PWRFLAGS_OFF);
+		if (pwr->pwrlevels[0].gpu_freq > 0)
+			clk_set_rate(pwr->grp_clks[0],
+				pwr->pwrlevels[pwr->num_pwrlevels - 1].
+				gpu_freq);
 		_sleep_accounting(device);
 		kgsl_pwrctrl_clk(device, KGSL_PWRFLAGS_OFF, KGSL_STATE_SLEEP);
 		kgsl_pwrctrl_set_state(device, KGSL_STATE_SLEEP);
@@ -931,6 +926,7 @@ int kgsl_pwrctrl_sleep(struct kgsl_device *device)
 		break;
 	case KGSL_STATE_SLEEP:
 		status = _sleep(device);
+		kgsl_mmu_disable_clk_on_ts(&device->mmu, 0, false);
 		break;
 	case KGSL_STATE_SLUMBER:
 		status = _slumber(device);

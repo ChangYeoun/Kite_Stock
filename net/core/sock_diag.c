@@ -126,8 +126,13 @@ static int __sock_diag_rcv_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
 	if (nlmsg_len(nlh) < sizeof(*req))
 		return -EINVAL;
 
+<<<<<<< HEAD
        if (req->sdiag_family >= AF_MAX)
               return -EINVAL;
+=======
+	if (req->sdiag_family >= AF_MAX)
+		return -EINVAL;
+>>>>>>> 132920f... 3.4.0 - 3.4.61
 
 	hndl = sock_diag_lock_handler(req->sdiag_family);
 	if (hndl == NULL)
