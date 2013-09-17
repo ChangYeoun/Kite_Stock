@@ -366,6 +366,17 @@ LINUXINCLUDE    := -I$(srctree)/arch/$(hdr-arch)/include \
 
 KBUILD_CPPFLAGS := -D__KERNEL__
 
+<<<<<<< HEAD
+=======
+
+#
+# LINARO OPT
+#
+CFLAGS_A15 = -march=armv7-a -mtune=cortex-a15 -mfpu=neon -funsafe-math-optimizations
+CFLAGS_MODULO = -fmodulo-sched -fmodulo-sched-allow-regmoves
+KERNEL_MODS	= $(CFLAGS_A15) $(CFLAGS_MODULO)
+
+>>>>>>> e815c6b... Makefile: add to O3 fno-inline-functions can help with 4.8.x Linaro
 KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
@@ -563,7 +574,9 @@ all: vmlinux
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os
 else
-KBUILD_CFLAGS	+= -O2
+KBUILD_CFLAGS	+= -O3
+KBUILD_CFLAGS   += $(call cc-disable-warning,maybe-uninitialized) -fno-inline-functions
+KBUILD_CFLAGS   += $(call cc-disable-warning,array-bounds)
 endif
 
 include $(srctree)/arch/$(SRCARCH)/Makefile
