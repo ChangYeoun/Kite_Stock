@@ -61,10 +61,17 @@
 #include <linux/nsproxy.h>
 #include <linux/ptrace.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <linux/hugetlb.h>
 #include <linux/freezer.h>
 =======
 >>>>>>> parent of 1a16706... 3.4.0 - 3.4.61
+=======
+=======
+#include <linux/hugetlb.h>
+#include <linux/freezer.h>
+>>>>>>> 132920f... 3.4.0 - 3.4.61
+>>>>>>> parent of cb097a4... fix
 
 #include <asm/futex.h>
 

@@ -1512,10 +1512,18 @@ int vm_insert_pfn(struct vm_area_struct *vma, unsigned long addr,
 int vm_insert_mixed(struct vm_area_struct *vma, unsigned long addr,
 			unsigned long pfn);
 <<<<<<< HEAD
+<<<<<<< HEAD
 int vm_iomap_memory(struct vm_area_struct *vma, phys_addr_t start, unsigned long len)
 =======
 int vm_iomap_memory(struct vm_area_struct *vma, phys_addr_t start, unsigned long len);
 >>>>>>> parent of 1a16706... 3.4.0 - 3.4.61
+=======
+int vm_iomap_memory(struct vm_area_struct *vma, phys_addr_t start, unsigned long len);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 132920f... 3.4.0 - 3.4.61
+>>>>>>> parent of cb097a4... fix
 
 struct page *follow_page(struct vm_area_struct *, unsigned long address,
 			unsigned int foll_flags);

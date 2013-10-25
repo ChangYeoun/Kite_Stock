@@ -332,6 +332,7 @@ void kernel_restart_prepare(char *cmd)
 	system_state = SYSTEM_RESTART;
 	usermodehelper_disable();
 	device_shutdown();
+<<<<<<< HEAD
 #ifdef CONFIG_MACH_LGE
 #if defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_FHD_INVERSE_PT) || defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_WXGA_PT)
 	mipi_lgit_lcd_off_for_shutdown();
@@ -341,6 +342,8 @@ void kernel_restart_prepare(char *cmd)
 #endif
 #endif
 	syscore_shutdown();
+=======
+>>>>>>> 132920f... 3.4.0 - 3.4.61
 }
 
 /**
