@@ -1946,15 +1946,6 @@ static inline int set_cpus_allowed_ptr(struct task_struct *p,
 }
 #endif
 
-<<<<<<< HEAD
-static inline void set_wake_up_idle(bool enabled)
-{
-	if (enabled)
-		current->flags |= PF_WAKE_UP_IDLE;
-	else
-		current->flags &= ~PF_WAKE_UP_IDLE;
-}
-=======
 #ifdef CONFIG_NO_HZ
 void calc_load_enter_idle(void);
 void calc_load_exit_idle(void);
@@ -1962,7 +1953,6 @@ void calc_load_exit_idle(void);
 static inline void calc_load_enter_idle(void) { }
 static inline void calc_load_exit_idle(void) { }
 #endif /* CONFIG_NO_HZ */
->>>>>>> 132920f... 3.4.0 - 3.4.61
 
 #ifndef CONFIG_CPUMASK_OFFSTACK
 static inline int set_cpus_allowed(struct task_struct *p, cpumask_t new_mask)

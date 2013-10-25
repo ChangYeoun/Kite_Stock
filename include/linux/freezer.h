@@ -113,10 +113,6 @@ static inline void freezer_count(void)
 	try_to_freeze();
 }
 
-<<<<<<< HEAD
-/*
- * Check if the task should be counted as freezable by the freezer
-=======
 /* DO NOT ADD ANY NEW CALLERS OF THIS FUNCTION */
 static inline void freezer_count_unsafe(void)
 {
@@ -134,7 +130,6 @@ static inline void freezer_count_unsafe(void)
  * test whether a task should be skipped when determining the target frozen
  * state is reached.  IOW, if this function returns %true, @p is considered
  * frozen enough.
->>>>>>> 132920f... 3.4.0 - 3.4.61
  */
 static inline bool freezer_should_skip(struct task_struct *p)
 {

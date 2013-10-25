@@ -60,11 +60,8 @@
 #include <linux/pid.h>
 #include <linux/nsproxy.h>
 #include <linux/ptrace.h>
-<<<<<<< HEAD
-=======
 #include <linux/hugetlb.h>
 #include <linux/freezer.h>
->>>>>>> 132920f... 3.4.0 - 3.4.61
 
 #include <asm/futex.h>
 
