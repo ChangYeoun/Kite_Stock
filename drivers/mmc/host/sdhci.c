@@ -26,7 +26,6 @@
 
 #include <linux/mmc/mmc.h>
 #include <linux/mmc/host.h>
-#include <linux/mmc/card.h>
 
 #include "sdhci.h"
 
@@ -1203,10 +1202,16 @@ static void sdhci_set_power(struct sdhci_host *host, unsigned short power)
 
 static void sdhci_request(struct mmc_host *mmc, struct mmc_request *mrq)
 {
+<<<<<<< HEAD
         struct sdhci_host *host;
         bool present;
         unsigned long flags;
         u32 tuning_opcode;
+=======
+	struct sdhci_host *host;
+	bool present;
+	unsigned long flags;
+>>>>>>> parent of 1a16706... 3.4.0 - 3.4.61
 
         host = mmc_priv(mmc);
 
@@ -1218,6 +1223,7 @@ static void sdhci_request(struct mmc_host *mmc, struct mmc_request *mrq)
         sdhci_activate_led(host);
 #endif
 
+<<<<<<< HEAD
         /*
          * Ensure we don't send the STOP for non-SET_BLOCK_COUNTED
          * requests if Auto-CMD12 is enabled.
@@ -1275,6 +1281,58 @@ static void sdhci_request(struct mmc_host *mmc, struct mmc_request *mrq)
 
         mmiowb();
         spin_unlock_irqrestore(&host->lock, flags);
+=======
+	/*
+	 * Ensure we don't send the STOP for non-SET_BLOCK_COUNTED
+	 * requests if Auto-CMD12 is enabled.
+	 */
+	if (!mrq->sbc && (host->flags & SDHCI_AUTO_CMD12)) {
+		if (mrq->stop) {
+			mrq->data->stop = NULL;
+			mrq->stop = NULL;
+		}
+	}
+
+	host->mrq = mrq;
+
+	/* If polling, assume that the card is always present. */
+	if (host->quirks & SDHCI_QUIRK_BROKEN_CARD_DETECTION)
+		present = true;
+	else
+		present = sdhci_readl(host, SDHCI_PRESENT_STATE) &
+				SDHCI_CARD_PRESENT;
+
+	if (!present || host->flags & SDHCI_DEVICE_DEAD) {
+		host->mrq->cmd->error = -ENOMEDIUM;
+		tasklet_schedule(&host->finish_tasklet);
+	} else {
+		u32 present_state;
+
+		present_state = sdhci_readl(host, SDHCI_PRESENT_STATE);
+		/*
+		 * Check if the re-tuning timer has already expired and there
+		 * is no on-going data transfer. If so, we need to execute
+		 * tuning procedure before sending command.
+		 */
+		if ((host->flags & SDHCI_NEEDS_RETUNING) &&
+		    !(present_state & (SDHCI_DOING_WRITE | SDHCI_DOING_READ))) {
+			spin_unlock_irqrestore(&host->lock, flags);
+			sdhci_execute_tuning(mmc);
+			spin_lock_irqsave(&host->lock, flags);
+
+			/* Restore original mmc_request structure */
+			host->mrq = mrq;
+		}
+
+		if (mrq->sbc && !(host->flags & SDHCI_AUTO_CMD23))
+			sdhci_send_command(host, mrq->sbc);
+		else
+			sdhci_send_command(host, mrq->cmd);
+	}
+
+	mmiowb();
+	spin_unlock_irqrestore(&host->lock, flags);
+>>>>>>> parent of 1a16706... 3.4.0 - 3.4.61
 }
 
 static void sdhci_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)

@@ -397,6 +397,7 @@ static int call_undef_hook(struct pt_regs *regs, unsigned int instr)
 
 asmlinkage void __exception do_undefinstr(struct pt_regs *regs)
 {
+<<<<<<< HEAD
         unsigned int correction = thumb_mode(regs) ? 2 : 4;
         unsigned int instr;
         siginfo_t info;
@@ -408,6 +409,21 @@ asmlinkage void __exception do_undefinstr(struct pt_regs *regs)
          * Correct this offset.
          */
         regs->ARM_pc -= correction;
+=======
+	unsigned int correction = thumb_mode(regs) ? 2 : 4;
+	unsigned int instr;
+	siginfo_t info;
+	void __user *pc;
+
+	/*
+	 * According to the ARM ARM, PC is 2 or 4 bytes ahead,
+	 * depending whether we're in Thumb mode or not.
+	 * Correct this offset.
+	 */
+	regs->ARM_pc -= correction;
+
+	pc = (void __user *)instruction_pointer(regs);
+>>>>>>> parent of 1a16706... 3.4.0 - 3.4.61
 
         pc = (void __user *)instruction_pointer(regs);
 
@@ -421,6 +437,7 @@ asmlinkage void __exception do_undefinstr(struct pt_regs *regs)
                         }
                 } else
 #endif
+<<<<<<< HEAD
                         instr = *(u32 *) pc;
         } else if (thumb_mode(regs)) {
                 get_user(instr, (u16 __user *)pc);
@@ -436,6 +453,23 @@ asmlinkage void __exception do_undefinstr(struct pt_regs *regs)
 
         if (call_undef_hook(regs, instr) == 0)
                 return;
+=======
+			instr = *(u32 *) pc;
+	} else if (thumb_mode(regs)) {
+		get_user(instr, (u16 __user *)pc);
+		if (is_wide_instruction(instr)) {
+			unsigned int instr2;
+			get_user(instr2, (u16 __user *)pc+1);
+			instr <<= 16;
+			instr |= instr2;
+		}
+	} else {
+		get_user(instr, (u32 __user *)pc);
+	}
+
+	if (call_undef_hook(regs, instr) == 0)
+		return;
+>>>>>>> parent of 1a16706... 3.4.0 - 3.4.61
 
 #ifdef CONFIG_DEBUG_USER
         if (user_debug & UDBG_UNDEFINED) {

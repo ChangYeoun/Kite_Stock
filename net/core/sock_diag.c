@@ -119,6 +119,7 @@ static inline void sock_diag_unlock_handler(struct sock_diag_handler *h)
 
 static int __sock_diag_rcv_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
 {
+<<<<<<< HEAD
         int err;
         struct sock_diag_req *req = NLMSG_DATA(nlh);
         struct sock_diag_handler *hndl;
@@ -137,6 +138,26 @@ static int __sock_diag_rcv_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
         sock_diag_unlock_handler(hndl);
 
         return err;
+=======
+	int err;
+	struct sock_diag_req *req = NLMSG_DATA(nlh);
+	struct sock_diag_handler *hndl;
+
+	if (nlmsg_len(nlh) < sizeof(*req))
+		return -EINVAL;
+
+       if (req->sdiag_family >= AF_MAX)
+              return -EINVAL;
+
+	hndl = sock_diag_lock_handler(req->sdiag_family);
+	if (hndl == NULL)
+		err = -ENOENT;
+	else
+		err = hndl->dump(skb, nlh);
+	sock_diag_unlock_handler(hndl);
+
+	return err;
+>>>>>>> parent of 1a16706... 3.4.0 - 3.4.61
 }
 
 static int sock_diag_rcv_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
